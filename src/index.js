@@ -1,12 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { Provider } from 'react-redux';
+import { store } from './app/store';
+
+import { fetchUsers } from './features/users/usersSlice.js'; 
+import { fetchPosts } from './features/posts/postsSlice.js';
+
+// import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
+import { BrowserRouter as Router } from 'react-router-dom'
+
+
+store.dispatch(fetchUsers())
+store.dispatch(fetchPosts())
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      {/* <Router>
+        <Routes><Route path='/*' element={<App />} /></Routes>
+      </Router> */}
+      <Router><App /></Router>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );
