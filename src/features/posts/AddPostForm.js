@@ -1,19 +1,20 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 // import { nanoid } from "@reduxjs/toolkit";
-import { postAdded, addNewPosts } from "./postsSlice.js";
+import { postAdded, addNewPosts, useAddNewPostMutation } from "./postsSlice.js";
 import { selectAllUsers } from "../users/usersSlice.js";
 import { useNavigate } from "react-router-dom";
 
 const AddPostForm = () => {
-    const dispatch = useDispatch()
+    const [addNewPost, {isLoading}] = useAddNewPostMutation()
+    // const dispatch = useDispatch()
 
     const navigate = useNavigate()
 
     const [title, setTitle] = useState('')
     const [content, setContent]  = useState('')
     const [userId, setUserId] = useState('')
-    const [addRequestsStatus, setAddRequestsStatus] = useState('idle')
+    
 
     const users = useSelector(selectAllUsers)
 
@@ -22,24 +23,20 @@ const AddPostForm = () => {
     const onAuthorChanged = e => setUserId(e.target.value)
 
     // const canSave =  Boolean(title) && Boolean(content) && Boolean(userId)
-    const canSave =  [title, content, userId].every(Boolean) && addRequestsStatus === 'idle'
+    const canSave =  [title, content, userId].every(Boolean) && !isLoading
 
-    const onSavePostClicked = () => {
+    const onSavePostClicked = async () => {
         if (canSave) {
             try {
-                setAddRequestsStatus('pending')
-                dispatch(addNewPosts({title, body: content, userId })).unwrap() 
+                await addNewPost({ title, body: content, userId }).unwrap()
+
                 setTitle('')
-            setContent('')
-            setUserId('')
-            navigate('/')
-            }catch(err){
-                console.log('Failed to save the post', err)
-            } finally {
-                setAddRequestsStatus('idle')
+                setContent('')
+                setUserId('')
+                navigate('/')
+            } catch (err) {
+                console.error('Failed to save the post', err)
             }
-            
-            
         }
     }
 
